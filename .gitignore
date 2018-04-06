@@ -57,3 +57,5 @@ typings/
 # dotenv environment variables file
 .env
 
+# file not to be tracked
+.DS_Store
