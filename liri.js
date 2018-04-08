@@ -7,7 +7,7 @@ var keys = require('./keys.js');
 
 var command = process.argv[2];
 
-var value = process.argv[3];
+var track = process.argv[3];
 
 var spotify = new Spotify(keys.spotify);
 
@@ -17,6 +17,8 @@ var params = {
   q: 'alexskarr33',
   count: 20
 };
+
+// var track = { type: 'track', query: value };
 
 if (command === 'my-tweets') {
   client.get('search/tweets', params, function(err, data, response) {
@@ -28,7 +30,44 @@ if (command === 'my-tweets') {
     }
   });
 } else if (command === 'spotify-this-song') {
-  spotify.get();
+  if (track == null) {
+    track = 'The Sign';
+    spotify.search({ type: 'track', query: track }, function(err, data) {
+      if (err) throw err;
+
+      console.log(
+        'The artist is ' + data.tracks.items[5].artists[0].name + '.'
+      );
+
+      console.log('The song is ' + '"' + data.tracks.items[5].name + '".');
+
+      console.log(
+        'Link to the song: ' + data.tracks.items[5].external_urls.spotify
+      );
+
+      console.log(
+        'The album is ' + '"' + data.tracks.items[5].album.name + '".'
+      );
+    });
+  } else {
+    spotify.search({ type: 'track', query: track }, function(err, data) {
+      if (err) throw err;
+
+      console.log(
+        'The artist is ' + data.tracks.items[0].artists[0].name + '.'
+      );
+
+      console.log('The song is ' + '"' + data.tracks.items[0].name + '".');
+
+      console.log(
+        'Link to the song: ' + data.tracks.items[0].external_urls.spotify
+      );
+
+      console.log(
+        'The album is ' + '"' + data.tracks.items[0].album.name + '".'
+      );
+    });
+  }
 } else if (command === 'movie-this') {
   //
 } else if (command === 'do-what-it-says') {
