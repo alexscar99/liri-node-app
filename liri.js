@@ -18,8 +18,6 @@ var params = {
   count: 20
 };
 
-// var track = { type: 'track', query: value };
-
 if (command === 'my-tweets') {
   client.get('search/tweets', params, function(err, data, response) {
     if (err) throw err;
