@@ -3,6 +3,7 @@ var dotenv = require('dotenv');
 var Twitter = require('twitter');
 var request = require('request');
 var Spotify = require('node-spotify-api');
+var fs = require('fs');
 var keys = require('./keys.js');
 
 var command = process.argv[2];
@@ -13,12 +14,46 @@ var spotify = new Spotify(keys.spotify);
 
 var client = new Twitter(keys.twitter);
 
-var params = {
-  q: 'alexskarr33',
-  count: 20
-};
-
+// run different function depending on argument entered
 if (command === 'my-tweets') {
+  twitterFeed();
+} else if (command === 'spotify-this-song') {
+  spotifySong();
+} else if (command === 'movie-this') {
+  imdbMovie();
+} else if (command === 'do-what-it-says') {
+  textFile();
+}
+
+// read text file and run appropriate function
+function textFile() {
+  fs.readFile('random.txt', 'utf8', function(error, data) {
+    if (error) throw error;
+
+    // get rid of `*` and ' ' in beginning of txt file, split array at comma
+    if (data.charAt(0) === '*') data = data.slice(2);
+    var dataArray = data.split(',');
+
+    // reassign command and value and rerun conditional
+    command = dataArray[0];
+    value = dataArray[1];
+
+    if (command === 'my-tweets') {
+      twitterFeed();
+    } else if (command === 'spotify-this-song') {
+      spotifySong();
+    } else if (command === 'movie-this') {
+      imdbMovie();
+    }
+  });
+}
+
+function twitterFeed() {
+  var params = {
+    q: 'alexskarr33',
+    count: 20
+  };
+
   client.get('search/tweets', params, function(err, data, response) {
     if (err) throw err;
 
@@ -27,7 +62,9 @@ if (command === 'my-tweets') {
       console.log('It was created at ' + data.statuses[i].created_at + '.');
     }
   });
-} else if (command === 'spotify-this-song') {
+}
+
+function spotifySong() {
   if (value == null) {
     value = 'The Sign';
     spotify.search({ type: 'track', query: value }, function(err, data) {
@@ -66,10 +103,14 @@ if (command === 'my-tweets') {
       );
     });
   }
-} else if (command === 'movie-this') {
+}
+
+function imdbMovie() {
   if (value == null) {
     var movieURL = 'http://www.omdbapi.com/?t=Mr+Nobody&apikey=trilogy';
     request(movieURL, function(error, response, body) {
+      if (error) throw error;
+
       console.log("The movie's title is " + JSON.parse(body).Title + '.');
       console.log('It was released in ' + JSON.parse(body).Year + '.');
       console.log(
@@ -110,7 +151,10 @@ if (command === 'my-tweets') {
     });
   } else {
     var movieURL = 'http://www.omdbapi.com/?t=' + value + '&apikey=trilogy';
+
     request(movieURL, function(error, response, body) {
+      if (error) throw error;
+
       console.log("The movie's title is " + JSON.parse(body).Title + '.');
       console.log('It was released in ' + JSON.parse(body).Year + '.');
       console.log(
@@ -150,6 +194,4 @@ if (command === 'my-tweets') {
       );
     });
   }
-} else if (command === 'do-what-it-says') {
-  //
 }
